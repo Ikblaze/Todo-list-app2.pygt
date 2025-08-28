@@ -1,0 +1,22 @@
+let todos = [];
+let id = 1;
+
+module.exports = {
+  getAll: () => todos,
+  get: (tid) => todos.find(t => t.id === tid),
+  add: (todo) => {
+    todo.id = id++;
+    todo.subtasks = todo.subtasks || [];
+    todo.status = todo.status || "pending";
+    todos.push(todo);
+    return todo;
+  },
+  update: (tid, updated) => {
+    const idx = todos.findIndex(t => t.id === tid);
+    if (idx === -1) return null;
+    todos[idx] = { ...todos[idx], ...updated };
+    return todos[idx];
+  },
+  delete: (tid) => { todos = todos.filter(t => t.id !== tid); },
+  clearAll: () => { todos = []; id = 1; }
+};
