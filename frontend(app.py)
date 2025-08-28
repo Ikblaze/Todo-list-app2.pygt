@@ -1,0 +1,71 @@
+const API_URL = "http://localhost:5000/api";
+
+const autoBackupSelect = document.getElementById("autoBackupSelect");
+const restoreAutoBtn = document.getElementById("restoreAutoBtn");
+const deleteBackupBtn = document.getElementById("deleteBackupBtn");
+
+// Format filename -> readable date
+function formatBackupLabel(filename) {
+  const raw = filename.replace("backup-", "").replace(".json", "").replace(/-/g, ":");
+  const date = new Date(filename.slice(7, -5).replace(/-/g, ":"));
+  return isNaN(date.getTime()) ? filename : date.toLocaleString();
+}
+
+// Load auto-backups
+async function loadAutoBackups() {
+  const res = await fetch(`${API_URL}/backups`);
+  const files = await res.json();
+
+  autoBackupSelect.innerHTML = "";
+  if (files.length === 0) {
+    const opt = document.createElement("option");
+    opt.textContent = "No backups available";
+    opt.disabled = true;
+    autoBackupSelect.appendChild(opt);
+    restoreAutoBtn.disabled = true;
+    deleteBackupBtn.disabled = true;
+    return;
+  }
+
+  files.forEach(file => {
+    const opt = document.createElement("option");
+    opt.value = file;
+    opt.textContent = formatBackupLabel(file);
+    autoBackupSelect.appendChild(opt);
+  });
+
+  restoreAutoBtn.disabled = false;
+  deleteBackupBtn.disabled = false;
+}
+
+// Restore from selected backup
+restoreAutoBtn.addEventListener("click", async () => {
+  const selectedFile = autoBackupSelect.value;
+  if (!selectedFile) return alert("Select a backup");
+
+  const res = await fetch(`${API_URL}/backups/${selectedFile}`);
+  const backupData = await res.json();
+
+  await fetch(`${API_URL}/backup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(backupData)
+  });
+
+  alert(`Restored from ${selectedFile}`);
+  location.reload();
+});
+
+// Delete backup
+deleteBackupBtn.addEventListener("click", async () => {
+  const selectedFile = autoBackupSelect.value;
+  if (!selectedFile) return alert("Select a backup to delete");
+  if (!confirm(`Delete ${selectedFile}?`)) return;
+
+  await fetch(`${API_URL}/backups/${selectedFile}`, { method: "DELETE" });
+  alert(`Deleted backup: ${selectedFile}`);
+  loadAutoBackups();
+});
+
+// Load backups on start
+loadAutoBackups();
