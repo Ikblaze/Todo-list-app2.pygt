@@ -1,0 +1,49 @@
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
+const router = express.Router();
+
+const todos = require("../models/todos");
+const tags = require("../models/tags");
+const categories = require("../models/categories");
+const settings = require("../models/settings");
+
+function saveBackup() {
+  const data = {
+    todos: todos.getAll(),
+    tags: tags.getAll(),
+    categories: categories.getAll(),
+    settings: settings.get()
+  };
+
+  const backupDir = path.join(__dirname, "../../data/backups");
+  if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true });
+
+  // Cleanup > 90 days old
+  const ninetyDays = 1000 * 60 * 60 * 24 * 90;
+  const now = Date.now();
+  fs.readdirSync(backupDir)
+    .filter(f => f.endsWith(".json"))
+    .forEach(f => {
+      const filePath = path.join(backupDir, f);
+      const stats = fs.statSync(filePath);
+      if (now - stats.mtimeMs > ninetyDays) fs.unlinkSync(filePath);
+    });
+
+  const filename = `backup-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+  fs.writeFileSync(path.join(backupDir, filename), JSON.stringify(data, null, 2));
+
+  return filename;
+}
+
+router.put("/", (req, res) => {
+  const backupFile = saveBackup();
+
+  todos.clearAll();
+  tags.clearAll();
+  categories.clearAll();
+
+  res.json({ success: true, message: `All data cleared. Backup created: ${backupFile}` });
+});
+
+module.exports = router;
