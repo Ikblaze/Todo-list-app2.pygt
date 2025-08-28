@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Todo App</title>
+</head>
+<body>
+  <h1>Todo App</h1>
+  <div>
+    <h3>Settings</h3>
+    <input type="color" id="bgColor"> Background
+    <input type="color" id="textColor"> Text
+    <button id="resetTheme">Reset Theme</button>
+    <button id="resetData">Reset All Data</button>
+  </div>
+
+  <hr>
+  <h3>Backup & Restore</h3>
+  <button id="backupBtn">Download Backup</button>
+  <input type="file" id="restoreInput" accept=".json">
+  <button id="restoreBtn">Restore Backup</button>
+
+  <h4>Restore from Auto-Backup</h4>
+  <select id="autoBackupSelect"></select>
+  <button id="restoreAutoBtn">Restore Selected Backup</button>
+  <button id="deleteBackupBtn">Delete Selected Backup</button>
+
+  <script src="app.js"></script>
+</body>
+</html>
