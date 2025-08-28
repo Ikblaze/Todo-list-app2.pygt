@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<div class="grid">
+<div class="row" style="justify-content:space-between;">
+<strong>Subtasks</strong>
+<button class="btn" id="btnAddSubField">＋ Add Field</button>
+</div>
+<div id="subFields"></div>
+</div>
+</div>
+<div class="row" style="margin-top:8px; gap:8px;">
+<div class="spacer"></div>
+<button class="btn" id="btnCancelForm">Cancel</button>
+<button class="btn primary" id="btnCreateTodo">Create</button>
+</div>
+`;
+const subFields = document.getElementById('subFields');
+const addField = () => {
+const w = document.createElement('div'); w.className = 'row'; w.style.gap = '8px'; w.style.marginBottom = '8px';
+w.innerHTML = `<input class="input" placeholder="Subtask title" style="flex:1;" /><button class="btn ghost">🗑</button>`;
+const del = w.querySelector('button'); del.onclick = () => w.remove();
+subFields.appendChild(w);
+};
+addField();
+document.getElementById('btnAddSubField').onclick = addField;
+
+
+document.getElementById('btnCancelForm').onclick = () => { todoFormCard.style.display = 'none'; };
+document.getElementById('btnCreateTodo').onclick = () => {
+const title = document.getElementById('fTitle').value;
+const description = document.getElementById('fDesc').value;
+const status = document.getElementById('fStatus').value;
+const category = document.getElementById('fCategory').value;
+const dueDate = document.getElementById('fDue').value;
+const tags = document.getElementById('fTags').value.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+const subtasks = Array.from(subFields.querySelectorAll('input')).map(i=>({ title: i.value, done:false })).filter(s=>s.title.trim());
+addTodo({ title, description, status, category, dueDate, tags, subtasks });
+todoFormCard.style.display = 'none';
+};
+}
+
+
+// --- Search & Filters ---------------------------------------------------
+filterStatusEl.onchange = renderTodos;
+filterCategoryEl.onchange = renderTodos;
+searchInputEl.oninput = debounce(renderTodos, 120);
+
+
+// --- Utilities ----------------------------------------------------------
+function escapeHTML(s){ return (s||'').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[ch])); }
+function escapeAttr(s){ return escapeHTML(s).replace(/\n/g,' '); }
+function debounce(fn, wait){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(null,a), wait); }; }
+
+
+// --- Initialize ---------------------------------------------------------
+refreshFilters();
+renderTodos();
+renderTags();
+renderCategories();
+</script>
+</body>
+</html>
