@@ -1,0 +1,25 @@
+todo-app/
+│
+├── server/
+│   ├── models/
+│   │   ├── todos.js
+│   │   ├── tags.js
+│   │   ├── categories.js
+│   │   └── settings.js
+│   ├── routes/
+│   │   ├── todos.js
+│   │   ├── tags.js
+│   │   ├── categories.js
+│   │   ├── settings.js
+│   │   ├── reset.js
+│   │   └── backups.js
+│   ├── server.js
+│   └── package.json
+│
+├── client/
+│   ├── index.html
+│   └── app.js
+│
+└── data/
+    └── backups/   ← backups auto-saved here
+
